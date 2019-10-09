@@ -1,8 +1,12 @@
 package com.example.examplemod;
 
+import com.example.examplemod.setup.ClientProxy;
+import com.example.examplemod.setup.IProxy;
+import com.example.examplemod.setup.ServerProxy;
 import net.minecraft.block.Block;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -11,7 +15,11 @@ import org.apache.logging.log4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod("examplemod")
-public class ExampleMod {
+public final class ExampleMod {
+  // Don't replace with method reference - subtle differences with class loading.
+  public static final IProxy proxy =
+      DistExecutor.runForDist(() -> () -> new ClientProxy(), () -> () -> new ServerProxy());
+
   // Directly reference a log4j logger.
   private static final Logger LOGGER = LogManager.getLogger();
 
@@ -20,7 +28,9 @@ public class ExampleMod {
     FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
   }
 
-  private void setup(final FMLCommonSetupEvent event) {}
+  private void setup(final FMLCommonSetupEvent event) {
+    // Invoked after all blocks are registered.
+  }
 
   // You can use EventBusSubscriber to automatically subscribe events on the contained class (this
   // is subscribing to the MOD
