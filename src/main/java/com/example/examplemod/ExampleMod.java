@@ -1,9 +1,13 @@
 package com.example.examplemod;
 
+import com.example.examplemod.blocks.FirstBlock;
+import com.example.examplemod.blocks.ModBlocks;
 import com.example.examplemod.setup.ClientProxy;
 import com.example.examplemod.setup.IProxy;
 import com.example.examplemod.setup.ServerProxy;
 import net.minecraft.block.Block;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
@@ -41,6 +45,18 @@ public final class ExampleMod {
     public static void onBlocksRegistry(final RegistryEvent.Register<Block> blockRegistryEvent) {
       // register a new block here
       LOGGER.info("HELLO from Register Block");
+      blockRegistryEvent.getRegistry().register(new FirstBlock());
+    }
+
+    @SubscribeEvent
+    public static void onItemsRegistry(final RegistryEvent.Register<Item> blockRegistryEvent) {
+      // register a new item here
+      LOGGER.info("HELLO from Register Item");
+      blockRegistryEvent
+          .getRegistry()
+          .register(
+              new BlockItem(ModBlocks.FIRST_BLOCK, new Item.Properties())
+                  .setRegistryName(FirstBlock.REGISTRY_NAME));
     }
   }
 }
