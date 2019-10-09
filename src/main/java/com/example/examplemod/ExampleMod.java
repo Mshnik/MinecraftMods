@@ -1,4 +1,4 @@
-package main.java.com.example.examplemod;
+package com.example.examplemod;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
