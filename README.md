@@ -2,6 +2,8 @@
 
 Yeah some mods woo
 
+## Testing Locally
+`./gradlew runClient`
 
 ## Installation FAQ
 https://mcforge.readthedocs.io/en/latest/gettingstarted/
