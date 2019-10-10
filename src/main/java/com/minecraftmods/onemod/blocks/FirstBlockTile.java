@@ -6,7 +6,7 @@ import net.minecraft.tileentity.TileEntity;
 /** @author Mshnik */
 final class FirstBlockTile extends TileEntity implements ITickableTileEntity {
   FirstBlockTile() {
-    super(ModBlocks.FIRST_BLOCK_TILE);
+    super(ObjectHolders.FIRST_BLOCK_TILE);
   }
 
   @Override

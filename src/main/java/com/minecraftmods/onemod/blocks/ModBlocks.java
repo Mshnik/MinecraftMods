@@ -8,7 +8,6 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraftforge.registries.ObjectHolder;
 
 import java.util.function.Supplier;
 
@@ -19,12 +18,6 @@ public final class ModBlocks {
 
   private static boolean initted = false;
 
-  @ObjectHolder("onemod:firstblock")
-  static FirstBlock FIRST_BLOCK;
-
-  @ObjectHolder("onemod:firstblock")
-  static TileEntityType<FirstBlockTile> FIRST_BLOCK_TILE;
-
   /** Initializes the ModBlocks class. Only needs to be called once. Further calls no-op. */
   public static synchronized void init() {
     if (initted) {
@@ -34,7 +27,8 @@ public final class ModBlocks {
     // Initialize all mod blocks and item group.
     REGISTRY_ENTRIES =
         ImmutableList.of(
-            RegistryEntry.of(FirstBlock.class, () -> FIRST_BLOCK, FirstBlockTile::new));
+            RegistryEntry.of(
+                FirstBlock.class, () -> ObjectHolders.FIRST_BLOCK, FirstBlockTile::new));
     ITEM_GROUP = new MyModItemGroup();
 
     // Update group after ItemGroup is initted.
