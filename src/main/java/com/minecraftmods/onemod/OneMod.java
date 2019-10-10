@@ -7,6 +7,7 @@ import com.minecraftmods.onemod.setup.ModSetup;
 import com.minecraftmods.onemod.setup.ServerProxy;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
@@ -48,17 +49,21 @@ public final class OneMod {
   @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
   public static class RegistryEvents {
     @SubscribeEvent
-    public static void onBlocksRegistry(final RegistryEvent.Register<Block> blockRegistryEvent) {
-      // register a new block here
+    public static void onBlocksRegistry(final RegistryEvent.Register<Block> event) {
       LOGGER.info("HELLO from Register Block");
-      ModBlocks.getModBlocks().forEach(blockRegistryEvent.getRegistry()::register);
+      ModBlocks.getModBlocks().forEach(event.getRegistry()::register);
     }
 
     @SubscribeEvent
-    public static void onItemsRegistry(final RegistryEvent.Register<Item> blockRegistryEvent) {
-      // register a new item here
+    public static void onItemsRegistry(final RegistryEvent.Register<Item> event) {
       LOGGER.info("HELLO from Register Item");
-      ModBlocks.getModBlockItems().forEach(blockRegistryEvent.getRegistry()::register);
+      ModBlocks.getModBlockItems().forEach(event.getRegistry()::register);
+    }
+
+    @SubscribeEvent
+    public static void onTileEntityRegistry(final RegistryEvent.Register<TileEntityType<?>> event) {
+      LOGGER.info("HELLO from Register Tile Entity");
+      ModBlocks.getTileEntityTypes().forEach(event.getRegistry()::register);
     }
   }
 }

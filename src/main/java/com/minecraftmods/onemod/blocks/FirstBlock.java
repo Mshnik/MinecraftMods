@@ -8,8 +8,10 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -24,6 +26,16 @@ final class FirstBlock extends Block {
 
   FirstBlock() {
     super(PROPERTIES);
+  }
+
+  @Override
+  public boolean hasTileEntity(BlockState blockState) {
+    return true;
+  }
+
+  @Override
+  public TileEntity createTileEntity(BlockState blockState, IBlockReader world) {
+    return new FirstBlockTile();
   }
 
   @Override
