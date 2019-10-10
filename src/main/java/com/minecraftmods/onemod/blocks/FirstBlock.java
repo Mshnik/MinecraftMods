@@ -6,7 +6,6 @@ import net.minecraft.block.material.Material;
 
 /** @author Mshnik */
 public final class FirstBlock extends Block {
-  public static final String REGISTRY_NAME = "firstblock";
 
   public FirstBlock() {
     super(
@@ -14,6 +13,5 @@ public final class FirstBlock extends Block {
             .sound(SoundType.METAL)
             .hardnessAndResistance(2.0f)
             .lightValue(14));
-    setRegistryName(REGISTRY_NAME);
   }
 }

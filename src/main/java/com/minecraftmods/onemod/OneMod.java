@@ -1,12 +1,10 @@
 package com.minecraftmods.onemod;
 
-import com.minecraftmods.onemod.blocks.FirstBlock;
 import com.minecraftmods.onemod.blocks.ModBlocks;
 import com.minecraftmods.onemod.setup.ClientProxy;
 import com.minecraftmods.onemod.setup.IProxy;
 import com.minecraftmods.onemod.setup.ServerProxy;
 import net.minecraft.block.Block;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -55,11 +53,7 @@ public final class OneMod {
     public static void onItemsRegistry(final RegistryEvent.Register<Item> blockRegistryEvent) {
       // register a new item here
       LOGGER.info("HELLO from Register Item");
-      blockRegistryEvent
-          .getRegistry()
-          .register(
-              new BlockItem(ModBlocks.FIRST_BLOCK, new Item.Properties())
-                  .setRegistryName(FirstBlock.REGISTRY_NAME));
+      ModBlocks.getModBlockItems().forEach(blockRegistryEvent.getRegistry()::register);
     }
   }
 }
