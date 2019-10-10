@@ -30,6 +30,9 @@ public final class OneMod {
   public OneMod() {
     // Register the setup method for modloading
     FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
+
+    // Init ModBlocks.
+    ModBlocks.init();
   }
 
   private void setup(final FMLCommonSetupEvent event) {
@@ -45,7 +48,7 @@ public final class OneMod {
     public static void onBlocksRegistry(final RegistryEvent.Register<Block> blockRegistryEvent) {
       // register a new block here
       LOGGER.info("HELLO from Register Block");
-      blockRegistryEvent.getRegistry().register(new FirstBlock());
+      ModBlocks.getModBlocks().forEach(blockRegistryEvent.getRegistry()::register);
     }
 
     @SubscribeEvent
