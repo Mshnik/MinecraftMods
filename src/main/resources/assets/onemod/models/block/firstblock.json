@@ -1,7 +1,7 @@
 {
   "parent": "block/cube",
   "textures": {
-    "particles": "onemod:block/firstblock_front",
+    "particle": "onemod:block/firstblock_front",
     "down": "onemod:block/firstblock_bottom",
     "up": "onemod:block/firstblock_top",
     "east": "onemod:block/firstblock_side",
