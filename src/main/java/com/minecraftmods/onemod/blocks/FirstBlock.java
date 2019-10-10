@@ -5,9 +5,8 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 
 /** @author Mshnik */
-public final class FirstBlock extends Block {
-
-  public FirstBlock() {
+final class FirstBlock extends Block {
+  FirstBlock() {
     super(
         Properties.create(Material.IRON)
             .sound(SoundType.METAL)
