@@ -50,19 +50,8 @@ public final class ModBlocks {
   public static ImmutableList<Block> getModBlocks() {
     return REGISTRY_ENTRIES
         .stream()
-        .map(ModBlocks::constructBlock)
+        .map(RegistryEntry::toBlock)
         .collect(ImmutableList.toImmutableList());
-  }
-
-  /** Builds a {@link Block} from the given {@link RegistryEntry}. Exceptions are re-thrown. */
-  private static <B extends Block> B constructBlock(RegistryEntry<B, ?> registryEntry) {
-    try {
-      B block = registryEntry.getBlockClass().newInstance();
-      block.setRegistryName(registryEntry.getRegistryName());
-      return block;
-    } catch (Exception e) {
-      throw new RuntimeException("Error instantiating " + registryEntry.getBlockClass(), e);
-    }
   }
 
   /**
@@ -72,17 +61,8 @@ public final class ModBlocks {
   public static ImmutableList<BlockItem> getModBlockItems() {
     return REGISTRY_ENTRIES
         .stream()
-        .map(ModBlocks::constructBlockItem)
+        .map(RegistryEntry::toBlockItem)
         .collect(ImmutableList.toImmutableList());
-  }
-
-  /** Builds a {@link BlockItem} from the given {@link RegistryEntry}. */
-  private static BlockItem constructBlockItem(RegistryEntry<?, ?> registryEntry) {
-    BlockItem blockItem =
-        new BlockItem(
-            registryEntry.getObjectHolderSupplier().get(), registryEntry.getItemProperties());
-    blockItem.setRegistryName(registryEntry.getRegistryName());
-    return blockItem;
   }
 
   /**
@@ -92,20 +72,8 @@ public final class ModBlocks {
   public static ImmutableList<TileEntityType<?>> getTileEntityTypes() {
     return REGISTRY_ENTRIES
         .stream()
-        .map(ModBlocks::constructTileEntityType)
+        .map(RegistryEntry::toTileEntityType)
         .collect(ImmutableList.toImmutableList());
-  }
-
-  /** Builds a {@link TileEntityType} from the given {@link RegistryEntry}. */
-  private static <T extends TileEntity> TileEntityType<T> constructTileEntityType(
-      RegistryEntry<?, T> registryEntry) {
-    TileEntityType<T> tileEntityType =
-        TileEntityType.Builder.create(
-                registryEntry.getTileEntitySupplier(),
-                registryEntry.getObjectHolderSupplier().get())
-            .build(null);
-    tileEntityType.setRegistryName(registryEntry.getRegistryName());
-    return tileEntityType;
   }
 
   /** A helper class for representing the information necessary to register a block and item. */
@@ -148,29 +116,40 @@ public final class ModBlocks {
       return this;
     }
 
-    /** Returns {@link #blockClass}. */
-    private Class<B> getBlockClass() {
-      return blockClass;
-    }
-
     /** Returns {@link #objectHolderSupplier}. */
     private Supplier<B> getObjectHolderSupplier() {
       return objectHolderSupplier;
     }
 
-    /** Returns {@link #tileEntitySupplier}. */
-    public Supplier<T> getTileEntitySupplier() {
-      return tileEntitySupplier;
-    }
-
-    /** Returns {@link #registryName}. */
-    private String getRegistryName() {
-      return registryName;
-    }
-
     /** Returns {@link #itemProperties}. */
     private Item.Properties getItemProperties() {
       return itemProperties;
+    }
+
+    /** Builds a {@link Block} from this {@link RegistryEntry}. Exceptions are re-thrown. */
+    private B toBlock() {
+      try {
+        B block = blockClass.newInstance();
+        block.setRegistryName(registryName);
+        return block;
+      } catch (Exception e) {
+        throw new RuntimeException("Error instantiating " + blockClass.getCanonicalName(), e);
+      }
+    }
+
+    /** Builds a {@link BlockItem} from this {@link RegistryEntry}. */
+    private BlockItem toBlockItem() {
+      BlockItem blockItem = new BlockItem(objectHolderSupplier.get(), itemProperties);
+      blockItem.setRegistryName(registryName);
+      return blockItem;
+    }
+
+    /** Builds a {@link TileEntityType} from this {@link RegistryEntry}. */
+    private TileEntityType<T> toTileEntityType() {
+      TileEntityType<T> tileEntityType =
+          TileEntityType.Builder.create(tileEntitySupplier, objectHolderSupplier.get()).build(null);
+      tileEntityType.setRegistryName(registryName);
+      return tileEntityType;
     }
   }
 
