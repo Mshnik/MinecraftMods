@@ -1,4 +1,4 @@
-package com.example.examplemod.blocks;
+package com.minecraftmods.onemod.blocks;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;

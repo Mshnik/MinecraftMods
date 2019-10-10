@@ -1,4 +1,4 @@
-package com.example.examplemod.setup;
+package com.minecraftmods.onemod.setup;
 
 import net.minecraft.world.World;
 

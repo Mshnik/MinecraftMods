@@ -1,10 +1,10 @@
-package com.example.examplemod;
+package com.minecraftmods.onemod;
 
-import com.example.examplemod.blocks.FirstBlock;
-import com.example.examplemod.blocks.ModBlocks;
-import com.example.examplemod.setup.ClientProxy;
-import com.example.examplemod.setup.IProxy;
-import com.example.examplemod.setup.ServerProxy;
+import com.minecraftmods.onemod.blocks.FirstBlock;
+import com.minecraftmods.onemod.blocks.ModBlocks;
+import com.minecraftmods.onemod.setup.ClientProxy;
+import com.minecraftmods.onemod.setup.IProxy;
+import com.minecraftmods.onemod.setup.ServerProxy;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -18,8 +18,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file
-@Mod("examplemod")
-public final class ExampleMod {
+@Mod("onemod")
+public final class OneMod {
   // Don't replace with method reference - subtle differences with class loading.
   public static final IProxy proxy =
       DistExecutor.runForDist(() -> () -> new ClientProxy(), () -> () -> new ServerProxy());
@@ -27,7 +27,7 @@ public final class ExampleMod {
   // Directly reference a log4j logger.
   private static final Logger LOGGER = LogManager.getLogger();
 
-  public ExampleMod() {
+  public OneMod() {
     // Register the setup method for modloading
     FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
   }
