@@ -6,6 +6,9 @@ import net.minecraft.world.World;
 /** @author Mshnik */
 public final class ClientProxy implements IProxy {
   @Override
+  public void init() {}
+
+  @Override
   public World getClientWorld() {
     return Minecraft.getInstance().world;
   }

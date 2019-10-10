@@ -3,6 +3,7 @@ package com.minecraftmods.onemod;
 import com.minecraftmods.onemod.blocks.ModBlocks;
 import com.minecraftmods.onemod.setup.ClientProxy;
 import com.minecraftmods.onemod.setup.IProxy;
+import com.minecraftmods.onemod.setup.ModSetup;
 import com.minecraftmods.onemod.setup.ServerProxy;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -19,8 +20,10 @@ import org.apache.logging.log4j.Logger;
 @Mod("onemod")
 public final class OneMod {
   // Don't replace with method reference - subtle differences with class loading.
-  public static final IProxy proxy =
+  private static final IProxy proxy =
       DistExecutor.runForDist(() -> () -> new ClientProxy(), () -> () -> new ServerProxy());
+
+  private static final ModSetup modSetup = new ModSetup();
 
   // Directly reference a log4j logger.
   private static final Logger LOGGER = LogManager.getLogger();
@@ -35,6 +38,8 @@ public final class OneMod {
 
   private void setup(final FMLCommonSetupEvent event) {
     // Invoked after all blocks are registered.
+    modSetup.init();
+    proxy.init();
   }
 
   // You can use EventBusSubscriber to automatically subscribe events on the contained class (this

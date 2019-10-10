@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.registries.ObjectHolder;
 
 import java.util.function.Supplier;
@@ -11,6 +13,8 @@ import java.util.function.Supplier;
 /** @author Mshnik */
 public final class ModBlocks {
   private static ImmutableList<RegistryEntry<?>> REGISTRY_ENTRIES;
+  private static ItemGroup ITEM_GROUP;
+
   private static boolean initted = false;
 
   @ObjectHolder("onemod:firstblock")
@@ -22,7 +26,13 @@ public final class ModBlocks {
       return;
     }
 
+    // Initialize all mod blocks and item group.
     REGISTRY_ENTRIES = ImmutableList.of(RegistryEntry.of(FirstBlock.class, () -> FIRST_BLOCK));
+    ITEM_GROUP = new MyModItemGroup();
+
+    // Update group after ItemGroup is initted.
+    REGISTRY_ENTRIES.forEach(r -> r.setItemProperties(r.getItemProperties().group(ITEM_GROUP)));
+
     initted = true;
   }
 
@@ -122,6 +132,19 @@ public final class ModBlocks {
     /** Returns {@link #itemProperties}. */
     private Item.Properties getItemProperties() {
       return itemProperties;
+    }
+  }
+
+  /** {@link ItemGroup} for mod blocks in this class. */
+  private static final class MyModItemGroup extends ItemGroup {
+
+    private MyModItemGroup() {
+      super("onemod");
+    }
+
+    @Override
+    public ItemStack createIcon() {
+      return new ItemStack(REGISTRY_ENTRIES.get(0).getObjectHolderSupplier().get());
     }
   }
 }
