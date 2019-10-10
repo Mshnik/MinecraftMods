@@ -1,6 +1,12 @@
 {
-  "parent": "block/cube_all",
+  "parent": "block/cube",
   "textures": {
-    "all":"onemod:block/firstblock"
+    "particles": "onemod:block/firstblock_front",
+    "down": "onemod:block/firstblock_bottom",
+    "up": "onemod:block/firstblock_top",
+    "east": "onemod:block/firstblock_side",
+    "west": "onemod:block/firstblock_side",
+    "north": "onemod:block/firstblock_front",
+    "south": "onemod:block/firstblock_back"
   }
 }

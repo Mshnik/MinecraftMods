@@ -1,5 +1,27 @@
 {
   "variants": {
-    "" : {"model" : "onemod:block/firstblock"}
+    "facing=north": {
+      "model": "onemod:block/firstblock"
+    },
+    "facing=south": {
+      "model": "onemod:block/firstblock",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "onemod:block/firstblock",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "onemod:block/firstblock",
+      "y": 90
+    },
+    "facing=up": {
+      "model": "onemod:block/firstblock",
+      "x": -90
+    },
+    "facing=down": {
+      "model": "onemod:block/firstblock",
+      "x": 90
+    }
   }
 }
