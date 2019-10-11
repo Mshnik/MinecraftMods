@@ -6,6 +6,7 @@ import com.minecraftmods.onemod.setup.IProxy;
 import com.minecraftmods.onemod.setup.ModSetup;
 import com.minecraftmods.onemod.setup.ServerProxy;
 import net.minecraft.block.Block;
+import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.event.RegistryEvent;
@@ -20,6 +21,8 @@ import org.apache.logging.log4j.Logger;
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod("onemod")
 public final class OneMod {
+  public static final String MODID = "onemod";
+
   // Don't replace with method reference - subtle differences with class loading.
   private static final IProxy proxy =
       DistExecutor.runForDist(() -> () -> new ClientProxy(), () -> () -> new ServerProxy());
@@ -64,6 +67,12 @@ public final class OneMod {
     public static void onTileEntityRegistry(final RegistryEvent.Register<TileEntityType<?>> event) {
       LOGGER.info("HELLO from Register Tile Entity");
       ModBlocks.getTileEntityTypes().forEach(event.getRegistry()::register);
+    }
+
+    @SubscribeEvent
+    public static void onContainerRegistry(final RegistryEvent.Register<ContainerType<?>> event) {
+      LOGGER.info("HELLO from Register Container Type");
+      ModBlocks.getContainerTypes(proxy::getClientWorld).forEach(event.getRegistry()::register);
     }
   }
 }
