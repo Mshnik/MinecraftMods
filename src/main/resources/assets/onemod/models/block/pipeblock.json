@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "particle": "onemod:block/pipeblock_front",
+    "down": "onemod:block/pipeblock_bottom",
+    "up": "onemod:block/pipeblock_top",
+    "east": "onemod:block/pipeblock_side",
+    "west": "onemod:block/pipeblock_side",
+    "north": "onemod:block/pipeblock_front",
+    "south": "onemod:block/pipeblock_back"
+  }
+}

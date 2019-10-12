@@ -42,7 +42,14 @@ public final class ModBlocks {
                     ContainerConstructor.<FirstBlockContainer, FirstBlockScreen>of(
                         FirstBlockContainer::new,
                         () -> ObjectHolders.FIRST_BLOCK_CONTAINER,
-                        FirstBlockScreen::new)));
+                        FirstBlockScreen::new)),
+            RegistryEntry.of(PipeBlock.class, () -> ObjectHolders.PIPE_BLOCK)
+                .setTileEntitySupplier(PipeBlockTile::new)
+                .setContainerSupplier(
+                    ContainerConstructor.<PipeBlockContainer, PipeBlockScreen>of(
+                        PipeBlockContainer::new,
+                        () -> ObjectHolders.PIPE_BLOCK_CONTAINER,
+                        PipeBlockScreen::new)));
     ITEM_GROUP = new MyModItemGroup();
 
     // Update group after ItemGroup is initted.

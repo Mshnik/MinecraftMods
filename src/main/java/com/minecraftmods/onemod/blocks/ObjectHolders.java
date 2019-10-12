@@ -15,5 +15,14 @@ final class ObjectHolders {
   @ObjectHolder("onemod:firstblock")
   static ContainerType<FirstBlockContainer> FIRST_BLOCK_CONTAINER;
 
+  @ObjectHolder("onemod:pipeblock")
+  static PipeBlock PIPE_BLOCK;
+
+  @ObjectHolder("onemod:pipeblock")
+  static TileEntityType<PipeBlockTile> PIPE_BLOCK_TILE;
+
+  @ObjectHolder("onemod:pipeblock")
+  static ContainerType<PipeBlockContainer> PIPE_BLOCK_CONTAINER;
+
   private ObjectHolders() {}
 }
