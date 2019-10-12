@@ -55,6 +55,9 @@ public final class ModBlocks {
     // Update group after ItemGroup is initted.
     REGISTRY_ENTRIES.forEach(r -> r.setItemProperties(r.getItemProperties().group(ITEM_GROUP)));
 
+    // Block custom init.
+    PipeBlock.init();
+
     initted = true;
   }
 
