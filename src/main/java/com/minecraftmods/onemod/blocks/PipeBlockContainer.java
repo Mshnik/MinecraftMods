@@ -12,8 +12,6 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
-import static com.minecraftmods.onemod.blocks.ObjectHolders.PIPE_BLOCK_CONTAINER;
-
 /** @author Mshnik */
 final class PipeBlockContainer extends Container {
   private static final int GUI_GRID_SIZE_PX = 18;

@@ -1,16 +1,19 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "---",
-    "   ",
-    "---"
+    "xxx",
+    "x#x",
+    "xxx"
   ],
   "key": {
-    "-": {
-      "item": "minecraft:iron_ingot"
+    "x": {
+      "item": "minecraft:dirt"
+    },
+    "#": {
+      "item": "minecraft:cobblestone"
     }
   },
   "result": {
-    "item": "onemod:pipeblock"
+    "item": "onemod:firstblock"
   }
 }

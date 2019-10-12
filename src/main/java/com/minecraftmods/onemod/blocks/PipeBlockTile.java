@@ -53,21 +53,7 @@ final class PipeBlockTile extends TileEntity
   }
 
   private ItemStackHandler createHandler() {
-    return new ItemStackHandler() {
-      @Override
-      public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-        return stack.getItem() == Items.DIAMOND;
-      }
-
-      @Nonnull
-      @Override
-      public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
-        if (!isItemValid(slot, stack)) {
-          return stack;
-        }
-        return super.insertItem(slot, stack, simulate);
-      }
-    };
+    return new ItemStackHandler();
   }
 
   @Nonnull
@@ -89,4 +75,6 @@ final class PipeBlockTile extends TileEntity
   public Container createMenu(int id, PlayerInventory playerInventory, PlayerEntity playerEntity) {
     return new PipeBlockContainer(id, world, pos, playerInventory);
   }
+
+
 }
