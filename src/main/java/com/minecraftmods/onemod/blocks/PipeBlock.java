@@ -27,7 +27,7 @@ final class PipeBlock extends Block {
   private static final Properties PROPERTIES =
       Properties.create(Material.IRON)
           .sound(SoundType.METAL)
-          .hardnessAndResistance(2.0f)
+          .hardnessAndResistance(0.5f)
           .lightValue(14);
 
   PipeBlock() {
