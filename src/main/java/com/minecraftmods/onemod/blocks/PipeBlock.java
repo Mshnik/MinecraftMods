@@ -16,6 +16,8 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkHooks;
@@ -29,6 +31,17 @@ final class PipeBlock extends Block {
           .sound(SoundType.METAL)
           .hardnessAndResistance(0.5f)
           .lightValue(14);
+
+  private static final float BLOCK_SIZE = 16;
+  private static final float WIDTH = 6;
+  private static final float SPACE = (BLOCK_SIZE - WIDTH) / 2;
+
+  private static final VoxelShape STRAIGHT_SHAPE_EAST_WEST =
+      Block.makeCuboidShape(0.0D, SPACE, SPACE, BLOCK_SIZE, WIDTH + SPACE, WIDTH + SPACE);
+  private static final VoxelShape STRAIGHT_SHAPE_NORTH_SOUTH =
+      Block.makeCuboidShape(SPACE, SPACE, 0.0D, WIDTH + SPACE, WIDTH + SPACE, BLOCK_SIZE);
+  private static final VoxelShape STRAIGHT_SHAPE_UP_DOWN =
+      Block.makeCuboidShape(SPACE, 0.0D, SPACE, WIDTH + SPACE, BLOCK_SIZE, WIDTH + SPACE);
 
   PipeBlock() {
     super(PROPERTIES);
@@ -72,7 +85,22 @@ final class PipeBlock extends Block {
     builder.add(BlockStateProperties.FACING);
   }
 
-
+  @Override
+  public VoxelShape getShape(
+      BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
+    switch (state.get(BlockStateProperties.FACING)) {
+      case DOWN:
+      case UP:
+        return STRAIGHT_SHAPE_UP_DOWN;
+      case NORTH:
+      case SOUTH:
+        return STRAIGHT_SHAPE_NORTH_SOUTH;
+      case WEST:
+      case EAST:
+        return STRAIGHT_SHAPE_EAST_WEST;
+    }
+    return super.getShape(state, worldIn, pos, context);
+  }
 
   @Override
   public boolean onBlockActivated(
