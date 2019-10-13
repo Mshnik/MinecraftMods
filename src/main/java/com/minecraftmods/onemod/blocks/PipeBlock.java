@@ -8,9 +8,11 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -22,22 +24,23 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
-import static net.minecraft.state.properties.BlockStateProperties.DOWN;
-import static net.minecraft.state.properties.BlockStateProperties.EAST;
-import static net.minecraft.state.properties.BlockStateProperties.FACING;
-import static net.minecraft.state.properties.BlockStateProperties.NORTH;
-import static net.minecraft.state.properties.BlockStateProperties.SOUTH;
-import static net.minecraft.state.properties.BlockStateProperties.UP;
-import static net.minecraft.state.properties.BlockStateProperties.WEST;
 import static net.minecraft.util.Direction.Axis.X;
 import static net.minecraft.util.Direction.Axis.Y;
 import static net.minecraft.util.Direction.Axis.Z;
 
 /** @author Mshnik */
 final class PipeBlock extends Block {
+  private static final DirectionProperty START =
+      DirectionProperty.create("start", Direction.values());
+  private static final DirectionProperty STOP =
+      DirectionProperty.create("stop", Direction.values());
+
   private static final Properties PROPERTIES =
       Properties.create(Material.IRON).sound(SoundType.METAL).hardnessAndResistance(0.5f);
 
@@ -45,12 +48,20 @@ final class PipeBlock extends Block {
   private static final float BLOCK_SIZE = 16;
   private static final float WIDTH = 6;
   private static final float SPACE = (BLOCK_SIZE - WIDTH) / 2;
-  private static final float END_SIZE = BLOCK_SIZE - SPACE;
 
   private static ImmutableMap<DirectionPair, VoxelShape> SHAPE_MAP;
 
   private static VoxelShape createEndShape(Direction direction) {
-    return Block.makeCuboidShape(0, 0, 0, 16, 16, 16);
+    boolean endOnMinSide =
+        direction == Direction.NORTH || direction == Direction.WEST || direction == Direction.DOWN;
+    Direction.Axis axis = direction.getAxis();
+    return Block.makeCuboidShape(
+        axis == X && endOnMinSide ? BLOCK_START : SPACE,
+        axis == Y && endOnMinSide ? BLOCK_START : SPACE,
+        axis == Z && endOnMinSide ? BLOCK_START : SPACE,
+        axis == X && !endOnMinSide ? BLOCK_SIZE : SPACE + WIDTH,
+        axis == Y && !endOnMinSide ? BLOCK_SIZE : SPACE + WIDTH,
+        axis == Z && !endOnMinSide ? BLOCK_SIZE : SPACE + WIDTH);
   }
 
   private static VoxelShape createStraightShape(Direction direction) {
@@ -80,6 +91,7 @@ final class PipeBlock extends Block {
       }
     }
     SHAPE_MAP = builder.build();
+    System.out.println("INIT - " + SHAPE_MAP);
   }
 
   PipeBlock() {
@@ -96,22 +108,43 @@ final class PipeBlock extends Block {
     return new PipeBlockTile();
   }
 
-  private boolean canAttach(BlockItemUseContext context, BlockPos adjacentBlockPos) {
-    BlockState blockstate = context.getWorld().getBlockState(adjacentBlockPos);
+  private boolean canAttach(IWorld world, BlockPos adjacentBlockPos) {
+    BlockState blockstate = world.getBlockState(adjacentBlockPos);
     Block block = blockstate.getBlock();
     return block instanceof PipeBlock;
   }
 
+  private <T> void addIf(List<T> list, T elem, boolean condition) {
+    if (condition) {
+      list.add(elem);
+    }
+  }
+
+  private List<Direction> getAttachedDirections(IWorld world, BlockPos blockPos) {
+    ArrayList<Direction> attachedDirections = new ArrayList<>();
+    addIf(attachedDirections, Direction.NORTH, canAttach(world, blockPos.north()));
+    addIf(attachedDirections, Direction.SOUTH, canAttach(world, blockPos.south()));
+    addIf(attachedDirections, Direction.EAST, canAttach(world, blockPos.east()));
+    addIf(attachedDirections, Direction.WEST, canAttach(world, blockPos.west()));
+    addIf(attachedDirections, Direction.UP, canAttach(world, blockPos.up()));
+    addIf(attachedDirections, Direction.DOWN, canAttach(world, blockPos.down()));
+    return attachedDirections;
+  }
+
+  private BlockState updateState(IWorld world, BlockState current, BlockPos blockPos) {
+    List<Direction> connections = getAttachedDirections(world, blockPos);
+    return current
+        .with(START, connections.size() >= 1 ? connections.get(0) : Direction.NORTH)
+        .with(
+            STOP,
+            connections.size() >= 2
+                ? connections.get(1)
+                : connections.size() >= 1 ? connections.get(0) : Direction.NORTH);
+  }
+
   @Override
   public BlockState getStateForPlacement(BlockItemUseContext context) {
-    BlockPos blockpos = context.getPos();
-    return super.getStateForPlacement(context)
-        .with(NORTH, canAttach(context, blockpos.north()))
-        .with(EAST, canAttach(context, blockpos.east()))
-        .with(SOUTH, canAttach(context, blockpos.south()))
-        .with(WEST, canAttach(context, blockpos.west()))
-        .with(UP, canAttach(context, blockpos.up()))
-        .with(DOWN, canAttach(context, blockpos.down()));
+    return updateState(context.getWorld(), super.getStateForPlacement(context), context.getPos());
   }
 
   @Override
@@ -120,41 +153,25 @@ final class PipeBlock extends Block {
       BlockPos blockPos,
       BlockState blockState,
       @Nullable LivingEntity entity,
-      ItemStack stack) {
-    if (entity != null) {
-      world.setBlockState(
-          blockPos, blockState.with(FACING, getFacingFromEntity(blockPos, entity)), 2);
-    }
-  }
+      ItemStack stack) {}
 
-  private static Direction getFacingFromEntity(BlockPos clickedBlock, LivingEntity entity) {
-    return Direction.getFacingFromVector(
-        (float) (entity.posX - clickedBlock.getX()),
-        (float) (entity.posY - clickedBlock.getY()),
-        (float) (entity.posZ - clickedBlock.getZ()));
-  }
+  //  private static Direction getFacingFromEntity(BlockPos clickedBlock, LivingEntity entity) {
+  //    return Direction.getFacingFromVector(
+  //        (float) (entity.posX - clickedBlock.getX()),
+  //        (float) (entity.posY - clickedBlock.getY()),
+  //        (float) (entity.posZ - clickedBlock.getZ()));
+  //  }
 
   @Override
   protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
     super.fillStateContainer(builder);
-    builder.add(FACING, NORTH, EAST, SOUTH, WEST, UP, DOWN);
+    builder.add(START, STOP);
   }
 
   @Override
   public VoxelShape getShape(
       BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
-    switch (state.get(FACING)) {
-      case DOWN:
-      case UP:
-        return SHAPE_MAP.get(DirectionPair.of(Direction.DOWN, Direction.UP));
-      case NORTH:
-      case SOUTH:
-        return SHAPE_MAP.get(DirectionPair.of(Direction.NORTH, Direction.SOUTH));
-      case WEST:
-      case EAST:
-        return SHAPE_MAP.get(DirectionPair.of(Direction.EAST, Direction.WEST));
-    }
-    return super.getShape(state, worldIn, pos, context);
+    return SHAPE_MAP.get(DirectionPair.of(state.get(START), state.get(STOP)));
   }
 
   @Override
@@ -165,7 +182,11 @@ final class PipeBlock extends Block {
       IWorld worldIn,
       BlockPos currentPos,
       BlockPos facingPos) {
-    return super.updatePostPlacement(stateIn, facing, facingState, worldIn, currentPos, facingPos);
+    // Improve to only consider facing direction.
+    return updateState(
+        worldIn,
+        super.updatePostPlacement(stateIn, facing, facingState, worldIn, currentPos, facingPos),
+        currentPos);
   }
 
   @Override
@@ -181,8 +202,8 @@ final class PipeBlock extends Block {
       if (tileEntity instanceof INamedContainerProvider) {
         // Player cast is safe because world is not remote.
         // Tile Entity cast is safe from earlier instanceof.
-        // NetworkHooks.openGui(
-        // (ServerPlayerEntity) player, (INamedContainerProvider) tileEntity, tileEntity.getPos());
+        NetworkHooks.openGui(
+            (ServerPlayerEntity) player, (INamedContainerProvider) tileEntity, tileEntity.getPos());
       }
     }
     return super.onBlockActivated(state, worldIn, pos, player, handIn, hit);

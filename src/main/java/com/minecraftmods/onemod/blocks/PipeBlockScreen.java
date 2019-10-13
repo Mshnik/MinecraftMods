@@ -2,10 +2,13 @@ package com.minecraftmods.onemod.blocks;
 
 import com.minecraftmods.onemod.OneMod;
 import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+
+import java.util.stream.Collectors;
 
 /** @author Mshnik */
 final class PipeBlockScreen extends ContainerScreen<PipeBlockContainer> {
@@ -27,6 +30,18 @@ final class PipeBlockScreen extends ContainerScreen<PipeBlockContainer> {
   @Override
   protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
     font.drawString(title.getFormattedText(), 8.0F, 6.0F, 4210752);
+
+    BlockState blockState = container.getTileEntity().getBlockState();
+    font.drawString(
+        blockState
+            .getProperties()
+            .stream()
+            .map(p -> p.getName() + "=" + blockState.get(p))
+            .collect(Collectors.joining(",")),
+        8.0F,
+        9.0F,
+        4210752);
+
     font.drawString(
         playerInventory.getDisplayName().getFormattedText(),
         8.0F,

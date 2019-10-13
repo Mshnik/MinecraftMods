@@ -33,6 +33,10 @@ final class PipeBlockContainer extends Container {
     layoutPlayerInventorySlots(8, 84);
   }
 
+  TileEntity getTileEntity() {
+    return tileEntity;
+  }
+
   @Override
   public boolean canInteractWith(PlayerEntity playerIn) {
     return isWithinUsableDistance(
