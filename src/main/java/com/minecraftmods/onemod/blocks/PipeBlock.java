@@ -21,6 +21,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
@@ -76,7 +77,7 @@ final class PipeBlock extends Block {
   }
 
   private static VoxelShape createCurveShape(Direction from, Direction to) {
-    return Block.makeCuboidShape(0, 0, 0, 16, 16, 16);
+    return VoxelShapes.or(createEndShape(from), createEndShape(to));
   }
 
   static void init() {
