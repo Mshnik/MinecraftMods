@@ -1,7 +1,9 @@
 package com.minecraftmods.onemod.blocks;
 
 import com.google.common.collect.ImmutableMap;
-import com.minecraftmods.onemod.util.DirectionPair;
+import com.minecraftmods.onemod.util.DirectionOrNone;
+import com.minecraftmods.onemod.util.DirectionOrNoneProperty;
+import com.minecraftmods.onemod.util.Pair;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SoundType;
@@ -12,7 +14,6 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -37,10 +38,8 @@ import static net.minecraft.util.Direction.Axis.Z;
 
 /** @author Mshnik */
 final class PipeBlock extends Block {
-  private static final DirectionProperty START =
-      DirectionProperty.create("start", Direction.values());
-  private static final DirectionProperty STOP =
-      DirectionProperty.create("stop", Direction.values());
+  private static final DirectionOrNoneProperty START = DirectionOrNoneProperty.allValues("start");
+  private static final DirectionOrNoneProperty STOP = DirectionOrNoneProperty.allValues("stop");
 
   private static final Properties PROPERTIES =
       Properties.create(Material.IRON).sound(SoundType.METAL).hardnessAndResistance(0.5f);
@@ -50,7 +49,7 @@ final class PipeBlock extends Block {
   private static final float WIDTH = 6;
   private static final float SPACE = (BLOCK_SIZE - WIDTH) / 2;
 
-  private static ImmutableMap<DirectionPair, VoxelShape> SHAPE_MAP;
+  private static ImmutableMap<Pair<DirectionOrNone, DirectionOrNone>, VoxelShape> SHAPE_MAP;
 
   private static VoxelShape createEndShape(Direction direction) {
     boolean endOnMinSide =
@@ -81,13 +80,31 @@ final class PipeBlock extends Block {
   }
 
   static void init() {
-    ImmutableMap.Builder<DirectionPair, VoxelShape> builder = ImmutableMap.builder();
-    for (Direction d : Direction.values()) {
-      builder.put(DirectionPair.of(d, d), createEndShape(d));
-      builder.put(DirectionPair.of(d, d.getOpposite()), createStraightShape(d));
-      for (Direction d2 : Direction.values()) {
+    ImmutableMap.Builder<Pair<DirectionOrNone, DirectionOrNone>, VoxelShape> builder =
+        ImmutableMap.builder();
+
+    // None-None element.
+    builder.put(
+        Pair.of(DirectionOrNone.NONE, DirectionOrNone.NONE),
+        Block.makeCuboidShape(SPACE, SPACE, SPACE, SPACE + WIDTH, SPACE + WIDTH, SPACE + WIDTH));
+
+    // Each direction shapes.
+    for (DirectionOrNone d : DirectionOrNone.valuesNoNone()) {
+      VoxelShape endShape = createEndShape(d.asDirection().get());
+
+      // End shapes.
+      builder.put(Pair.of(d, DirectionOrNone.NONE), endShape);
+      builder.put(Pair.of(DirectionOrNone.NONE, d), endShape);
+      builder.put(Pair.of(d, d), endShape);
+
+      // Straight.
+      builder.put(Pair.of(d, d.getOpposite()), createStraightShape(d.asDirection().get()));
+
+      // Curves.
+      for (DirectionOrNone d2 : DirectionOrNone.valuesNoNone()) {
         if (d2 != d && d2 != d.getOpposite()) {
-          builder.put(DirectionPair.of(d, d2), createCurveShape(d, d2));
+          builder.put(
+              Pair.of(d, d2), createCurveShape(d.asDirection().get(), d2.asDirection().get()));
         }
       }
     }
@@ -121,26 +138,26 @@ final class PipeBlock extends Block {
     }
   }
 
-  private List<Direction> getAttachedDirections(IWorld world, BlockPos blockPos) {
-    ArrayList<Direction> attachedDirections = new ArrayList<>();
-    addIf(attachedDirections, Direction.NORTH, canAttach(world, blockPos.north()));
-    addIf(attachedDirections, Direction.SOUTH, canAttach(world, blockPos.south()));
-    addIf(attachedDirections, Direction.EAST, canAttach(world, blockPos.east()));
-    addIf(attachedDirections, Direction.WEST, canAttach(world, blockPos.west()));
-    addIf(attachedDirections, Direction.UP, canAttach(world, blockPos.up()));
-    addIf(attachedDirections, Direction.DOWN, canAttach(world, blockPos.down()));
+  private List<DirectionOrNone> getAttachedDirections(IWorld world, BlockPos blockPos) {
+    ArrayList<DirectionOrNone> attachedDirections = new ArrayList<>();
+    addIf(attachedDirections, DirectionOrNone.NORTH, canAttach(world, blockPos.north()));
+    addIf(attachedDirections, DirectionOrNone.SOUTH, canAttach(world, blockPos.south()));
+    addIf(attachedDirections, DirectionOrNone.EAST, canAttach(world, blockPos.east()));
+    addIf(attachedDirections, DirectionOrNone.WEST, canAttach(world, blockPos.west()));
+    addIf(attachedDirections, DirectionOrNone.UP, canAttach(world, blockPos.up()));
+    addIf(attachedDirections, DirectionOrNone.DOWN, canAttach(world, blockPos.down()));
     return attachedDirections;
   }
 
   private BlockState updateState(IWorld world, BlockState current, BlockPos blockPos) {
-    List<Direction> connections = getAttachedDirections(world, blockPos);
+    List<DirectionOrNone> connections = getAttachedDirections(world, blockPos);
     return current
-        .with(START, connections.size() >= 1 ? connections.get(0) : Direction.NORTH)
+        .with(START, connections.size() >= 1 ? connections.get(0) : DirectionOrNone.NORTH)
         .with(
             STOP,
             connections.size() >= 2
                 ? connections.get(1)
-                : connections.size() >= 1 ? connections.get(0) : Direction.NORTH);
+                : connections.size() >= 1 ? connections.get(0) : DirectionOrNone.NORTH);
   }
 
   @Override
@@ -172,7 +189,7 @@ final class PipeBlock extends Block {
   @Override
   public VoxelShape getShape(
       BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
-    return SHAPE_MAP.get(DirectionPair.of(state.get(START), state.get(STOP)));
+    return SHAPE_MAP.get(Pair.of(state.get(START), state.get(STOP)));
   }
 
   @Override

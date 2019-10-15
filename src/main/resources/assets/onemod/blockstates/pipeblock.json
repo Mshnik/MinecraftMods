@@ -1,5 +1,8 @@
 {
   "variants": {
+    "start=none,stop=none": {
+      "model": "onemod:block/pipeblock_none"
+    },
     "start=north,stop=north": {
       "model": "onemod:block/pipeblock_end"
     },
@@ -20,6 +23,52 @@
       "x": -90
     },
     "start=down,stop=down": {
+      "model": "onemod:block/pipeblock_end",
+      "x": 90
+    },
+    "start=north,stop=none": {
+      "model": "onemod:block/pipeblock_end"
+    },
+    "start=south,stop=none": {
+      "model": "onemod:block/pipeblock_end",
+      "y": 180
+    },
+    "start=west,stop=none": {
+      "model": "onemod:block/pipeblock_end",
+      "y": 270
+    },
+    "start=east,stop=none": {
+      "model": "onemod:block/pipeblock_end",
+      "y": 90
+    },
+    "start=up,stop=none": {
+      "model": "onemod:block/pipeblock_end",
+      "x": -90
+    },
+    "start=down,stop=none": {
+      "model": "onemod:block/pipeblock_end",
+      "x": 90
+    },
+    "start=none,stop=north": {
+      "model": "onemod:block/pipeblock_end"
+    },
+    "start=none,stop=south": {
+      "model": "onemod:block/pipeblock_end",
+      "y": 180
+    },
+    "start=none,stop=west": {
+      "model": "onemod:block/pipeblock_end",
+      "y": 270
+    },
+    "start=none,stop=east": {
+      "model": "onemod:block/pipeblock_end",
+      "y": 90
+    },
+    "start=none,stop=up": {
+      "model": "onemod:block/pipeblock_end",
+      "x": -90
+    },
+    "start=none,stop=down": {
       "model": "onemod:block/pipeblock_end",
       "x": 90
     },
