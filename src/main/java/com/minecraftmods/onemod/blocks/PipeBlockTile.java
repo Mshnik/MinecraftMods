@@ -4,7 +4,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.ITickableTileEntity;
@@ -52,6 +51,11 @@ final class PipeBlockTile extends TileEntity
     return super.write(compoundNBT);
   }
 
+  /** Returns true iff the item handler has at least one item. */
+  boolean hasItem() {
+    return handler.map(i -> i.getStackInSlot(0).getItem() != Items.AIR).orElse(false);
+  }
+
   private ItemStackHandler createHandler() {
     return new ItemStackHandler();
   }
@@ -75,6 +79,4 @@ final class PipeBlockTile extends TileEntity
   public Container createMenu(int id, PlayerInventory playerInventory, PlayerEntity playerEntity) {
     return new PipeBlockContainer(id, world, pos, playerInventory);
   }
-
-
 }

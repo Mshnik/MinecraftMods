@@ -11,7 +11,6 @@ import net.minecraft.block.material.Material;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateContainer;
@@ -231,11 +230,12 @@ final class PipeBlock extends Block {
       BlockRayTraceResult hit) {
     if (!worldIn.isRemote) {
       TileEntity tileEntity = worldIn.getTileEntity(pos);
-      if (tileEntity instanceof INamedContainerProvider) {
-        // Player cast is safe because world is not remote.
-        // Tile Entity cast is safe from earlier instanceof.
-        NetworkHooks.openGui(
-            (ServerPlayerEntity) player, (INamedContainerProvider) tileEntity, tileEntity.getPos());
+      if (tileEntity instanceof PipeBlockTile) {
+        PipeBlockTile provider = (PipeBlockTile) tileEntity;
+        if (provider.hasItem()) {
+          // Player cast is safe because world is not remote.
+          NetworkHooks.openGui((ServerPlayerEntity) player, provider, tileEntity.getPos());
+        }
       }
     }
     return super.onBlockActivated(state, worldIn, pos, player, handIn, hit);
