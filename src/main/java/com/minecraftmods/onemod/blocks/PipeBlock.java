@@ -29,8 +29,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import static net.minecraft.util.Direction.Axis.X;
 import static net.minecraft.util.Direction.Axis.Y;
@@ -132,14 +133,14 @@ final class PipeBlock extends Block {
     return block instanceof PipeBlock;
   }
 
-  private <T> void addIf(List<T> list, T elem, boolean condition) {
+  private <T> void addIf(Collection<T> list, T elem, boolean condition) {
     if (condition) {
       list.add(elem);
     }
   }
 
-  private List<DirectionOrNone> getAttachedDirections(IWorld world, BlockPos blockPos) {
-    ArrayList<DirectionOrNone> attachedDirections = new ArrayList<>();
+  private Set<DirectionOrNone> getAttachedDirections(IWorld world, BlockPos blockPos) {
+    HashSet<DirectionOrNone> attachedDirections = new HashSet<>();
     addIf(attachedDirections, DirectionOrNone.NORTH, canAttach(world, blockPos.north()));
     addIf(attachedDirections, DirectionOrNone.SOUTH, canAttach(world, blockPos.south()));
     addIf(attachedDirections, DirectionOrNone.EAST, canAttach(world, blockPos.east()));
@@ -150,14 +151,34 @@ final class PipeBlock extends Block {
   }
 
   private BlockState updateState(IWorld world, BlockState current, BlockPos blockPos) {
-    List<DirectionOrNone> connections = getAttachedDirections(world, blockPos);
-    return current
-        .with(START, connections.size() >= 1 ? connections.get(0) : DirectionOrNone.NORTH)
-        .with(
-            STOP,
-            connections.size() >= 2
-                ? connections.get(1)
-                : connections.size() >= 1 ? connections.get(0) : DirectionOrNone.NORTH);
+    DirectionOrNone currentStart = current.get(START);
+    DirectionOrNone currentStop = current.get(STOP);
+    Set<DirectionOrNone> connections = getAttachedDirections(world, blockPos);
+
+    DirectionOrNone newStart = DirectionOrNone.NONE;
+    DirectionOrNone newStop = DirectionOrNone.NONE;
+
+    // If existing connections still exist, use them.
+    if (connections.contains(currentStart)) {
+      newStart = currentStart;
+      connections.remove(currentStart);
+    }
+    if (connections.contains(currentStop)) {
+      newStop = currentStop;
+      connections.remove(currentStop);
+    }
+
+    // If directions are still none, try to pick a from remainder..
+    if (newStart == DirectionOrNone.NONE) {
+      newStart = connections.stream().findFirst().orElse(DirectionOrNone.NONE);
+      connections.remove(newStart);
+    }
+    if (newStop == DirectionOrNone.NONE) {
+      newStop = connections.stream().findFirst().orElse(DirectionOrNone.NONE);
+      connections.remove(newStop);
+    }
+
+    return current.with(START, newStart).with(STOP, newStop);
   }
 
   @Override
@@ -172,13 +193,6 @@ final class PipeBlock extends Block {
       BlockState blockState,
       @Nullable LivingEntity entity,
       ItemStack stack) {}
-
-  //  private static Direction getFacingFromEntity(BlockPos clickedBlock, LivingEntity entity) {
-  //    return Direction.getFacingFromVector(
-  //        (float) (entity.posX - clickedBlock.getX()),
-  //        (float) (entity.posY - clickedBlock.getY()),
-  //        (float) (entity.posZ - clickedBlock.getZ()));
-  //  }
 
   @Override
   protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {

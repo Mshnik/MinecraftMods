@@ -8,13 +8,13 @@ import java.util.Optional;
 
 /** @author Mshnik */
 public enum DirectionOrNone implements IStringSerializable {
-  NORTH(Direction.NORTH, 1),
-  SOUTH(Direction.SOUTH, 0),
-  EAST(Direction.EAST, 3),
-  WEST(Direction.WEST, 2),
-  UP(Direction.UP, 5),
-  DOWN(Direction.DOWN, 4),
-  NONE(null, 6);
+  NONE(null, 0),
+  NORTH(Direction.NORTH, 2),
+  SOUTH(Direction.SOUTH, 1),
+  EAST(Direction.EAST, 4),
+  WEST(Direction.WEST, 3),
+  UP(Direction.UP, 6),
+  DOWN(Direction.DOWN, 5);
 
   public static DirectionOrNone[] valuesNoNone() {
     return new DirectionOrNone[] {NORTH, SOUTH, EAST, WEST, UP, DOWN};
