@@ -131,8 +131,7 @@
       "x": 90
     },
     "start=west,stop=north": {
-      "model": "onemod:block/pipeblock_curve",
-      "y": 90
+      "model": "onemod:block/pipeblock_curve"
     },
     "start=west,stop=south": {
       "model": "onemod:block/pipeblock_curve",
@@ -147,7 +146,8 @@
       "x": 90
     },
     "start=east,stop=north": {
-      "model": "onemod:block/pipeblock_curve"
+      "model": "onemod:block/pipeblock_curve",
+      "y":90
     },
     "start=east,stop=south": {
       "model": "onemod:block/pipeblock_curve",
