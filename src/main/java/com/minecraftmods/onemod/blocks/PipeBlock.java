@@ -40,6 +40,7 @@ import static net.minecraft.util.Direction.Axis.Z;
 final class PipeBlock extends Block {
   private static final DirectionOrNoneProperty START = DirectionOrNoneProperty.allValues("start");
   private static final DirectionOrNoneProperty STOP = DirectionOrNoneProperty.allValues("stop");
+  private static final PipeFlow.PipeFlowProperty FLOW = PipeFlow.PipeFlowProperty.allValues("flow");
 
   private static final Properties PROPERTIES =
       Properties.create(Material.IRON).sound(SoundType.METAL).hardnessAndResistance(0.5f);
@@ -199,7 +200,7 @@ final class PipeBlock extends Block {
   @Override
   protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
     super.fillStateContainer(builder);
-    builder.add(START, STOP);
+    builder.add(START, STOP, FLOW);
   }
 
   @Override
@@ -235,10 +236,10 @@ final class PipeBlock extends Block {
       TileEntity tileEntity = worldIn.getTileEntity(pos);
       if (tileEntity instanceof PipeBlockTile) {
         PipeBlockTile provider = (PipeBlockTile) tileEntity;
-        //if (provider.hasItem()) {
-          // Player cast is safe because world is not remote.
-          NetworkHooks.openGui((ServerPlayerEntity) player, provider, tileEntity.getPos());
-        //}
+        // if (provider.hasItem()) {
+        // Player cast is safe because world is not remote.
+        NetworkHooks.openGui((ServerPlayerEntity) player, provider, tileEntity.getPos());
+        // }
       }
     }
     return super.onBlockActivated(state, worldIn, pos, player, handIn, hit);
