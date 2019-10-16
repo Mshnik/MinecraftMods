@@ -126,26 +126,29 @@ final class PipeBlock extends Block {
     return new PipeBlockTile();
   }
 
-  private boolean canAttach(IWorld world, BlockPos adjacentBlockPos) {
-    BlockState blockstate = world.getBlockState(adjacentBlockPos);
-    Block block = blockstate.getBlock();
-    return block instanceof PipeBlock;
-  }
-
-  private <T> void addIf(Collection<T> list, T elem, boolean condition) {
-    if (condition) {
-      list.add(elem);
+  private void addIfCanAttach(
+      Collection<DirectionOrNone> list,
+      IWorld world,
+      DirectionOrNone direction,
+      BlockPos blockPos) {
+    BlockState blockstate = world.getBlockState(blockPos);
+    if (blockstate.getBlock() instanceof PipeBlock
+        && (blockstate.get(START).isNone()
+            || blockstate.get(STOP).isNone()
+            || blockstate.get(START) == direction.getOpposite()
+            || blockstate.get(STOP) == direction.getOpposite())) {
+      list.add(direction);
     }
   }
 
   private Set<DirectionOrNone> getAttachedDirections(IWorld world, BlockPos blockPos) {
     HashSet<DirectionOrNone> attachedDirections = new HashSet<>();
-    addIf(attachedDirections, DirectionOrNone.NORTH, canAttach(world, blockPos.north()));
-    addIf(attachedDirections, DirectionOrNone.SOUTH, canAttach(world, blockPos.south()));
-    addIf(attachedDirections, DirectionOrNone.EAST, canAttach(world, blockPos.east()));
-    addIf(attachedDirections, DirectionOrNone.WEST, canAttach(world, blockPos.west()));
-    addIf(attachedDirections, DirectionOrNone.UP, canAttach(world, blockPos.up()));
-    addIf(attachedDirections, DirectionOrNone.DOWN, canAttach(world, blockPos.down()));
+    addIfCanAttach(attachedDirections, world, DirectionOrNone.NORTH, blockPos.north());
+    addIfCanAttach(attachedDirections, world, DirectionOrNone.SOUTH, blockPos.south());
+    addIfCanAttach(attachedDirections, world, DirectionOrNone.EAST, blockPos.east());
+    addIfCanAttach(attachedDirections, world, DirectionOrNone.WEST, blockPos.west());
+    addIfCanAttach(attachedDirections, world, DirectionOrNone.UP, blockPos.up());
+    addIfCanAttach(attachedDirections, world, DirectionOrNone.DOWN, blockPos.down());
     return attachedDirections;
   }
 
