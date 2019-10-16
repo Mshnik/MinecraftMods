@@ -23,6 +23,8 @@ import javax.annotation.Nullable;
 final class PipeBlockTile extends TileEntity
     implements ITickableTileEntity, INamedContainerProvider {
   private static final String INVENTORY_KEY = "inventory";
+  private static final int NUM_STACKS = 2;
+
   private final LazyOptional<ItemStackHandler> handler = LazyOptional.of(this::createHandler);
 
   PipeBlockTile() {
@@ -57,7 +59,7 @@ final class PipeBlockTile extends TileEntity
   }
 
   private ItemStackHandler createHandler() {
-    return new ItemStackHandler();
+    return new ItemStackHandler(NUM_STACKS);
   }
 
   @Nonnull

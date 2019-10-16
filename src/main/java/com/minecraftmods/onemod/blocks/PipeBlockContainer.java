@@ -27,7 +27,7 @@ final class PipeBlockContainer extends Container {
     // Block inventory.
     tileEntity
         .getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
-        .ifPresent(h -> addSlots(h, 79, 29, 1, 1, 0));
+        .ifPresent(h -> addSlots(h, 71, 32, h.getSlots(), 1, 0));
 
     // Player inventory.
     layoutPlayerInventorySlots(8, 84);

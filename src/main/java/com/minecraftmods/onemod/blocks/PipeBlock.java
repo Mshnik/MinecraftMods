@@ -235,10 +235,10 @@ final class PipeBlock extends Block {
       TileEntity tileEntity = worldIn.getTileEntity(pos);
       if (tileEntity instanceof PipeBlockTile) {
         PipeBlockTile provider = (PipeBlockTile) tileEntity;
-        if (provider.hasItem()) {
+        //if (provider.hasItem()) {
           // Player cast is safe because world is not remote.
           NetworkHooks.openGui((ServerPlayerEntity) player, provider, tileEntity.getPos());
-        }
+        //}
       }
     }
     return super.onBlockActivated(state, worldIn, pos, player, handIn, hit);
