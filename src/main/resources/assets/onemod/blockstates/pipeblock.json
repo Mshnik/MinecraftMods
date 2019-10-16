@@ -165,41 +165,41 @@
     },
     "start=up,stop=north": {
       "model": "onemod:block/pipeblock_curve",
-      "x": -90
+      "x": -90,
+      "y": 90
     },
     "start=up,stop=south": {
       "model": "onemod:block/pipeblock_curve",
       "x": -90,
-      "y": 180
+      "y": 270
     },
     "start=up,stop=west": {
       "model": "onemod:block/pipeblock_curve",
-      "x": -90,
-      "y": 270
+      "x": -90
     },
     "start=up,stop=east": {
       "model": "onemod:block/pipeblock_curve",
       "x": -90,
-      "y": 90
+      "y": 180
     },
     "start=down,stop=north": {
       "model": "onemod:block/pipeblock_curve",
-      "x": 90
+      "x": 90,
+      "y": 90
     },
     "start=down,stop=south": {
       "model": "onemod:block/pipeblock_curve",
       "x": 90,
-      "y": 180
+      "y": 270
     },
     "start=down,stop=west": {
       "model": "onemod:block/pipeblock_curve",
-      "x": 90,
-      "y": 270
+      "x": 90
     },
     "start=down,stop=east": {
       "model": "onemod:block/pipeblock_curve",
       "x": 90,
-      "y": 90
+      "y": 180
     }
   }
 }
