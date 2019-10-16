@@ -8,6 +8,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ContainerBlock;
+import net.minecraft.block.HopperBlock;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.LivingEntity;
@@ -15,9 +16,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -33,7 +34,9 @@ import net.minecraftforge.fml.network.NetworkHooks;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static net.minecraft.util.Direction.Axis.X;
 import static net.minecraft.util.Direction.Axis.Y;
@@ -41,9 +44,17 @@ import static net.minecraft.util.Direction.Axis.Z;
 
 /** @author Mshnik */
 final class PipeBlock extends ContainerBlock {
-  private static final DirectionOrNoneProperty START = DirectionOrNoneProperty.allValues("start");
-  private static final DirectionOrNoneProperty STOP = DirectionOrNoneProperty.allValues("stop");
-  private static final PipeFlow.PipeFlowProperty FLOW = PipeFlow.PipeFlowProperty.allValues("flow");
+  private static final int NO_FLOW = 0;
+  private static final int SELF_FLOW = 1;
+  private static final int FLOW_MIN = 2;
+  private static final int FLOW_MAX = 200;
+  private static final int FLOW_MID = (FLOW_MAX + FLOW_MIN) / 2;
+
+  static final DirectionOrNoneProperty START = DirectionOrNoneProperty.allValues("start");
+  static final DirectionOrNoneProperty STOP = DirectionOrNoneProperty.allValues("stop");
+  static final PipeFlow.PipeFlowProperty FLOW_DIRECTION =
+      PipeFlow.PipeFlowProperty.allValues("flow_direction");
+  static final IntegerProperty FLOW_VALUE = IntegerProperty.create("flow_value", NO_FLOW, FLOW_MAX);
 
   private static final Properties PROPERTIES =
       Properties.create(Material.IRON).sound(SoundType.METAL).hardnessAndResistance(0.5f);
@@ -121,6 +132,12 @@ final class PipeBlock extends ContainerBlock {
   }
 
   @Override
+  protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+    super.fillStateContainer(builder);
+    builder.add(START, STOP, FLOW_DIRECTION, FLOW_VALUE);
+  }
+
+  @Override
   public boolean hasTileEntity(BlockState blockState) {
     return true;
   }
@@ -140,28 +157,29 @@ final class PipeBlock extends ContainerBlock {
       IWorld world,
       DirectionOrNone direction,
       BlockPos blockPos) {
-    BlockState blockstate = world.getBlockState(blockPos);
-    if (blockstate.getBlock() instanceof PipeBlock
-        && (blockstate.get(START).isNone()
-            || blockstate.get(STOP).isNone()
-            || blockstate.get(START) == direction.getOpposite()
-            || blockstate.get(STOP) == direction.getOpposite())) {
+    BlockState blockstate = world.getBlockState(direction.moveBlockPos(blockPos));
+    if (blockstate.getBlock() instanceof HopperBlock
+        || (blockstate.getBlock() instanceof PipeBlock
+            && (blockstate.get(START).isNone()
+                || blockstate.get(STOP).isNone()
+                || blockstate.get(START) == direction.getOpposite()
+                || blockstate.get(STOP) == direction.getOpposite()))) {
       list.add(direction);
     }
   }
 
   private Set<DirectionOrNone> getAttachedDirections(IWorld world, BlockPos blockPos) {
     HashSet<DirectionOrNone> attachedDirections = new HashSet<>();
-    addIfCanAttach(attachedDirections, world, DirectionOrNone.NORTH, blockPos.north());
-    addIfCanAttach(attachedDirections, world, DirectionOrNone.SOUTH, blockPos.south());
-    addIfCanAttach(attachedDirections, world, DirectionOrNone.EAST, blockPos.east());
-    addIfCanAttach(attachedDirections, world, DirectionOrNone.WEST, blockPos.west());
-    addIfCanAttach(attachedDirections, world, DirectionOrNone.UP, blockPos.up());
-    addIfCanAttach(attachedDirections, world, DirectionOrNone.DOWN, blockPos.down());
+    addIfCanAttach(attachedDirections, world, DirectionOrNone.NORTH, blockPos);
+    addIfCanAttach(attachedDirections, world, DirectionOrNone.SOUTH, blockPos);
+    addIfCanAttach(attachedDirections, world, DirectionOrNone.EAST, blockPos);
+    addIfCanAttach(attachedDirections, world, DirectionOrNone.WEST, blockPos);
+    addIfCanAttach(attachedDirections, world, DirectionOrNone.UP, blockPos);
+    addIfCanAttach(attachedDirections, world, DirectionOrNone.DOWN, blockPos);
     return attachedDirections;
   }
 
-  private BlockState updateState(IWorld world, BlockState current, BlockPos blockPos) {
+  private BlockState updateAttachState(IWorld world, BlockState current, BlockPos blockPos) {
     DirectionOrNone currentStart = current.get(START);
     DirectionOrNone currentStop = current.get(STOP);
     Set<DirectionOrNone> connections = getAttachedDirections(world, blockPos);
@@ -192,9 +210,73 @@ final class PipeBlock extends ContainerBlock {
     return current.with(START, newStart).with(STOP, newStop);
   }
 
+  private Optional<BlockState> getBlockInDirection(
+      World world, BlockPos currentPos, DirectionOrNone directionOrNone) {
+    return directionOrNone
+        .asDirection()
+        .map(d -> currentPos.add(d.getDirectionVec()))
+        .map(world::getBlockState);
+  }
+
+  private boolean connectedToAdjacentHopperInDirection(
+      World world, BlockState current, BlockPos currentPos, DirectionOrNone directionOrNone) {
+    return (current.get(START) == directionOrNone || current.get(STOP) == directionOrNone)
+        && world.getBlockState(directionOrNone.moveBlockPos(currentPos)).getBlock()
+            instanceof HopperBlock;
+  }
+
+  private BlockState updateFlowValue(World world, BlockState current, BlockPos pos) {
+    // Short-circuits where we can't possibly have valid flow.
+    if (current.get(START).isNone() && current.get(STOP).isNone()) {
+      return current.with(FLOW_VALUE, NO_FLOW);
+    }
+
+    boolean hopperDown =
+        connectedToAdjacentHopperInDirection(world, current, pos, DirectionOrNone.DOWN);
+    boolean hopperNonDown =
+        Stream.of(
+                DirectionOrNone.NONE,
+                DirectionOrNone.SOUTH,
+                DirectionOrNone.EAST,
+                DirectionOrNone.WEST,
+                DirectionOrNone.UP)
+            .anyMatch(d -> connectedToAdjacentHopperInDirection(world, current, pos, d));
+
+    Optional<BlockState> adjacentBlockOne = getBlockInDirection(world, pos, current.get(START));
+    Optional<BlockState> adjacentBlockTwo = getBlockInDirection(world, pos, current.get(STOP));
+
+    BlockState updated = current;
+    boolean notificationNeeded = false;
+    if (hopperDown && hopperNonDown) {
+      updated =
+          updated
+              .with(FLOW_VALUE, SELF_FLOW)
+              .with(
+                  FLOW_DIRECTION,
+                  current.get(START) == DirectionOrNone.DOWN
+                      ? PipeFlow.TOWARDS_START
+                      : PipeFlow.TOWARDS_STOP);
+      notificationNeeded = true;
+    } else if (hopperDown) {
+      updated = updated.with(FLOW_VALUE, FLOW_MIN);
+      notificationNeeded = true;
+    } else if (hopperNonDown) {
+      updated = updated.with(FLOW_VALUE, FLOW_MAX);
+      notificationNeeded = true;
+    }
+
+    if (notificationNeeded) {
+      world.notifyNeighborsOfStateChange(pos, this);
+    }
+    return updated;
+  }
+
   @Override
   public BlockState getStateForPlacement(BlockItemUseContext context) {
-    return updateState(context.getWorld(), super.getStateForPlacement(context), context.getPos());
+    return updateAttachState(
+        context.getWorld(),
+        super.getStateForPlacement(context).with(FLOW_VALUE, 0),
+        context.getPos());
   }
 
   @Override
@@ -204,12 +286,6 @@ final class PipeBlock extends ContainerBlock {
       BlockState blockState,
       @Nullable LivingEntity entity,
       ItemStack stack) {}
-
-  @Override
-  protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
-    super.fillStateContainer(builder);
-    builder.add(START, STOP, FLOW);
-  }
 
   @Override
   public VoxelShape getShape(
@@ -226,10 +302,23 @@ final class PipeBlock extends ContainerBlock {
       BlockPos currentPos,
       BlockPos facingPos) {
     // Improve to only consider facing direction.
-    return updateState(
-        worldIn,
-        super.updatePostPlacement(stateIn, facing, facingState, worldIn, currentPos, facingPos),
-        currentPos);
+    BlockState updatedAttachState =
+        updateAttachState(
+            worldIn,
+            super.updatePostPlacement(stateIn, facing, facingState, worldIn, currentPos, facingPos),
+            currentPos);
+    return updateFlowValue(worldIn.getWorld(), updatedAttachState, currentPos);
+  }
+
+  @Override
+  public void neighborChanged(
+      BlockState state,
+      World worldIn,
+      BlockPos pos,
+      Block blockIn,
+      BlockPos fromPos,
+      boolean isMoving) {
+    if (!worldIn.isRemote) {}
   }
 
   @Override

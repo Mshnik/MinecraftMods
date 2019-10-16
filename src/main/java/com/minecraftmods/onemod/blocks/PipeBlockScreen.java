@@ -5,10 +5,12 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.state.Property;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /** @author Mshnik */
 final class PipeBlockScreen extends ContainerScreen<PipeBlockContainer> {
@@ -29,17 +31,13 @@ final class PipeBlockScreen extends ContainerScreen<PipeBlockContainer> {
   /** Draw the foreground layer for the GuiContainer (everything in front of the items) */
   @Override
   protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-    font.drawString(title.getFormattedText(), 8.0F, 6.0F, 4210752);
-
     BlockState blockState = container.getTileEntity().getBlockState();
     font.drawString(
-        blockState
-            .getProperties()
-            .stream()
+        Stream.<Property<?>>of(PipeBlock.FLOW_DIRECTION, PipeBlock.FLOW_VALUE)
             .map(p -> p.getName() + "=" + blockState.get(p))
             .collect(Collectors.joining(",")),
+        7.0F,
         8.0F,
-        9.0F,
         4210752);
 
     font.drawString(
