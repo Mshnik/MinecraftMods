@@ -135,11 +135,6 @@ final class PipeBlock extends ContainerBlock {
     return BlockRenderType.MODEL;
   }
 
-  @Override
-  public BlockRenderLayer getRenderLayer() {
-    return BlockRenderLayer.CUTOUT_MIPPED;
-  }
-
   private void addIfCanAttach(
       Collection<DirectionOrNone> list,
       IWorld world,
