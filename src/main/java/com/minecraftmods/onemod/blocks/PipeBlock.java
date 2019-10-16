@@ -5,7 +5,9 @@ import com.minecraftmods.onemod.util.DirectionOrNone;
 import com.minecraftmods.onemod.util.DirectionOrNoneProperty;
 import com.minecraftmods.onemod.util.Pair;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.ContainerBlock;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.LivingEntity;
@@ -15,6 +17,7 @@ import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -37,7 +40,7 @@ import static net.minecraft.util.Direction.Axis.Y;
 import static net.minecraft.util.Direction.Axis.Z;
 
 /** @author Mshnik */
-final class PipeBlock extends Block {
+final class PipeBlock extends ContainerBlock {
   private static final DirectionOrNoneProperty START = DirectionOrNoneProperty.allValues("start");
   private static final DirectionOrNoneProperty STOP = DirectionOrNoneProperty.allValues("stop");
   private static final PipeFlow.PipeFlowProperty FLOW = PipeFlow.PipeFlowProperty.allValues("flow");
@@ -123,8 +126,18 @@ final class PipeBlock extends Block {
   }
 
   @Override
-  public TileEntity createTileEntity(BlockState blockState, IBlockReader world) {
+  public TileEntity createNewTileEntity(IBlockReader worldIn) {
     return new PipeBlockTile();
+  }
+
+  @Override
+  public BlockRenderType getRenderType(BlockState state) {
+    return BlockRenderType.MODEL;
+  }
+
+  @Override
+  public BlockRenderLayer getRenderLayer() {
+    return BlockRenderLayer.CUTOUT_MIPPED;
   }
 
   private void addIfCanAttach(
