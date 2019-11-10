@@ -16,7 +16,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -36,7 +35,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static net.minecraft.util.Direction.Axis.X;
 import static net.minecraft.util.Direction.Axis.Y;
@@ -50,11 +48,9 @@ final class PipeBlock extends ContainerBlock {
   private static final int FLOW_MAX = 200;
   private static final int FLOW_MID = (FLOW_MAX + FLOW_MIN) / 2;
 
+  //  private static final BooleanProperty DEBUG = BooleanProperty.create("debug");
   static final DirectionOrNoneProperty START = DirectionOrNoneProperty.allValues("start");
   static final DirectionOrNoneProperty STOP = DirectionOrNoneProperty.allValues("stop");
-  static final PipeFlow.PipeFlowProperty FLOW_DIRECTION =
-      PipeFlow.PipeFlowProperty.allValues("flow_direction");
-  static final IntegerProperty FLOW_VALUE = IntegerProperty.create("flow_value", NO_FLOW, FLOW_MAX);
 
   private static final Properties PROPERTIES =
       Properties.create(Material.IRON).sound(SoundType.METAL).hardnessAndResistance(0.5f);
@@ -124,7 +120,6 @@ final class PipeBlock extends ContainerBlock {
       }
     }
     SHAPE_MAP = builder.build();
-    System.out.println("INIT - " + SHAPE_MAP);
   }
 
   PipeBlock() {
@@ -134,7 +129,7 @@ final class PipeBlock extends ContainerBlock {
   @Override
   protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
     super.fillStateContainer(builder);
-    builder.add(START, STOP, FLOW_DIRECTION, FLOW_VALUE);
+    builder.add(START, STOP);
   }
 
   @Override
@@ -225,58 +220,10 @@ final class PipeBlock extends ContainerBlock {
             instanceof HopperBlock;
   }
 
-  private BlockState updateFlowValue(World world, BlockState current, BlockPos pos) {
-    // Short-circuits where we can't possibly have valid flow.
-    if (current.get(START).isNone() && current.get(STOP).isNone()) {
-      return current.with(FLOW_VALUE, NO_FLOW);
-    }
-
-    boolean hopperDown =
-        connectedToAdjacentHopperInDirection(world, current, pos, DirectionOrNone.DOWN);
-    boolean hopperNonDown =
-        Stream.of(
-                DirectionOrNone.NONE,
-                DirectionOrNone.SOUTH,
-                DirectionOrNone.EAST,
-                DirectionOrNone.WEST,
-                DirectionOrNone.UP)
-            .anyMatch(d -> connectedToAdjacentHopperInDirection(world, current, pos, d));
-
-    Optional<BlockState> adjacentBlockOne = getBlockInDirection(world, pos, current.get(START));
-    Optional<BlockState> adjacentBlockTwo = getBlockInDirection(world, pos, current.get(STOP));
-
-    BlockState updated = current;
-    boolean notificationNeeded = false;
-    if (hopperDown && hopperNonDown) {
-      updated =
-          updated
-              .with(FLOW_VALUE, SELF_FLOW)
-              .with(
-                  FLOW_DIRECTION,
-                  current.get(START) == DirectionOrNone.DOWN
-                      ? PipeFlow.TOWARDS_START
-                      : PipeFlow.TOWARDS_STOP);
-      notificationNeeded = true;
-    } else if (hopperDown) {
-      updated = updated.with(FLOW_VALUE, FLOW_MIN);
-      notificationNeeded = true;
-    } else if (hopperNonDown) {
-      updated = updated.with(FLOW_VALUE, FLOW_MAX);
-      notificationNeeded = true;
-    }
-
-    if (notificationNeeded) {
-      world.notifyNeighborsOfStateChange(pos, this);
-    }
-    return updated;
-  }
-
   @Override
   public BlockState getStateForPlacement(BlockItemUseContext context) {
     return updateAttachState(
-        context.getWorld(),
-        super.getStateForPlacement(context).with(FLOW_VALUE, 0),
-        context.getPos());
+        context.getWorld(), super.getStateForPlacement(context), context.getPos());
   }
 
   @Override
@@ -307,7 +254,7 @@ final class PipeBlock extends ContainerBlock {
             worldIn,
             super.updatePostPlacement(stateIn, facing, facingState, worldIn, currentPos, facingPos),
             currentPos);
-    return updateFlowValue(worldIn.getWorld(), updatedAttachState, currentPos);
+    return updatedAttachState;
   }
 
   @Override

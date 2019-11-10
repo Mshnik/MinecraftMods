@@ -33,7 +33,7 @@ final class PipeBlockScreen extends ContainerScreen<PipeBlockContainer> {
   protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
     BlockState blockState = container.getTileEntity().getBlockState();
     font.drawString(
-        Stream.<Property<?>>of(PipeBlock.FLOW_DIRECTION, PipeBlock.FLOW_VALUE)
+        Stream.<Property<?>>of(PipeBlock.START, PipeBlock.STOP)
             .map(p -> p.getName() + "=" + blockState.get(p))
             .collect(Collectors.joining(",")),
         7.0F,
