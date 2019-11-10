@@ -16,6 +16,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -42,13 +43,9 @@ import static net.minecraft.util.Direction.Axis.Z;
 
 /** @author Mshnik */
 final class PipeBlock extends ContainerBlock {
-  private static final int NO_FLOW = 0;
-  private static final int SELF_FLOW = 1;
-  private static final int FLOW_MIN = 2;
-  private static final int FLOW_MAX = 200;
-  private static final int FLOW_MID = (FLOW_MAX + FLOW_MIN) / 2;
+  private static final boolean IS_DEBUG = true;
 
-  //  private static final BooleanProperty DEBUG = BooleanProperty.create("debug");
+  static final BooleanProperty DEBUG = BooleanProperty.create("debug");
   static final DirectionOrNoneProperty START = DirectionOrNoneProperty.allValues("start");
   static final DirectionOrNoneProperty STOP = DirectionOrNoneProperty.allValues("stop");
 
@@ -124,12 +121,13 @@ final class PipeBlock extends ContainerBlock {
 
   PipeBlock() {
     super(PROPERTIES);
+    setDefaultState(getDefaultState().with(DEBUG, IS_DEBUG));
   }
 
   @Override
   protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
     super.fillStateContainer(builder);
-    builder.add(START, STOP);
+    builder.add(START, STOP, DEBUG);
   }
 
   @Override
