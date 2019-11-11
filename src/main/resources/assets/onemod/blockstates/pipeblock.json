@@ -97,7 +97,8 @@
     },
     "start=north,stop=east,debug=false": {
       "model": "onemod:block/pipeblock_curve",
-      "y": 90
+      "x": 180,
+      "y": 270
     },
     "start=north,stop=west,debug=false": {
       "model": "onemod:block/pipeblock_curve"
@@ -118,7 +119,7 @@
     },
     "start=south,stop=west,debug=false": {
       "model": "onemod:block/pipeblock_curve",
-      "y": 270
+      "x": 180
     },
     "start=south,stop=up,debug=false": {
       "model": "onemod:block/pipeblock_curve",
@@ -131,7 +132,9 @@
       "x": 90
     },
     "start=west,stop=north,debug=false": {
-      "model": "onemod:block/pipeblock_curve"
+      "model": "onemod:block/pipeblock_curve",
+      "x":180,
+      "y":90
     },
     "start=west,stop=south,debug=false": {
       "model": "onemod:block/pipeblock_curve",
@@ -139,11 +142,13 @@
     },
     "start=west,stop=up,debug=false": {
       "model": "onemod:block/pipeblock_curve",
-      "x": -90
+      "x": 90,
+      "y": 90
     },
     "start=west,stop=down,debug=false": {
       "model": "onemod:block/pipeblock_curve",
-      "x": 90
+      "x": 270,
+      "y": 90
     },
     "start=east,stop=north,debug=false": {
       "model": "onemod:block/pipeblock_curve",
@@ -151,17 +156,18 @@
     },
     "start=east,stop=south,debug=false": {
       "model": "onemod:block/pipeblock_curve",
-      "y": 180
+      "x": 180,
+      "y": 270
     },
     "start=east,stop=up,debug=false": {
       "model": "onemod:block/pipeblock_curve",
-      "y": 180,
-      "x": -90
+      "y": 270,
+      "x": 90
     },
     "start=east,stop=down,debug=false": {
       "model": "onemod:block/pipeblock_curve",
-      "y": 180,
-      "x": 90
+      "y": 270,
+      "x": 270
     },
     "start=up,stop=north,debug=false": {
       "model": "onemod:block/pipeblock_curve",
@@ -298,7 +304,8 @@
     },
     "start=north,stop=east,debug=true": {
       "model": "onemod:block/pipeblock_curve_debug",
-      "y": 90
+      "x": 180,
+      "y": 270
     },
     "start=north,stop=west,debug=true": {
       "model": "onemod:block/pipeblock_curve_debug"
@@ -319,7 +326,7 @@
     },
     "start=south,stop=west,debug=true": {
       "model": "onemod:block/pipeblock_curve_debug",
-      "y": 270
+      "x": 180
     },
     "start=south,stop=up,debug=true": {
       "model": "onemod:block/pipeblock_curve_debug",
@@ -332,7 +339,9 @@
       "x": 90
     },
     "start=west,stop=north,debug=true": {
-      "model": "onemod:block/pipeblock_curve_debug"
+      "model": "onemod:block/pipeblock_curve_debug",
+      "x":180,
+      "y":90
     },
     "start=west,stop=south,debug=true": {
       "model": "onemod:block/pipeblock_curve_debug",
@@ -340,11 +349,13 @@
     },
     "start=west,stop=up,debug=true": {
       "model": "onemod:block/pipeblock_curve_debug",
-      "x": -90
+      "x": 90,
+      "y": 90
     },
     "start=west,stop=down,debug=true": {
       "model": "onemod:block/pipeblock_curve_debug",
-      "x": 90
+      "x": 270,
+      "y": 90
     },
     "start=east,stop=north,debug=true": {
       "model": "onemod:block/pipeblock_curve_debug",
@@ -352,17 +363,18 @@
     },
     "start=east,stop=south,debug=true": {
       "model": "onemod:block/pipeblock_curve_debug",
-      "y": 180
+      "x": 180,
+      "y": 270
     },
     "start=east,stop=up,debug=true": {
       "model": "onemod:block/pipeblock_curve_debug",
-      "y": 180,
-      "x": -90
+      "y": 270,
+      "x": 90
     },
     "start=east,stop=down,debug=true": {
       "model": "onemod:block/pipeblock_curve_debug",
-      "y": 180,
-      "x": 90
+      "y": 270,
+      "x": 270
     },
     "start=up,stop=north,debug=true": {
       "model": "onemod:block/pipeblock_curve_debug",
