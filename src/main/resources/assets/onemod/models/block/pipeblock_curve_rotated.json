@@ -21,9 +21,7 @@
       "from": [ 5, 5, 5 ],
       "to": [ 11, 11, 11 ],
       "faces": {
-        "down":  { "uv": [ 5, 5, 11, 11 ], "texture": "#end" },
         "up":    { "uv": [ 5, 5, 11, 11 ], "texture": "#end" },
-        "north": { "uv": [ 5, 5, 11, 11 ], "texture": "#end"},
         "south": { "uv": [ 5, 5, 11, 11 ], "texture": "#end"},
         "west":  { "uv": [ 5, 5, 11, 11 ], "texture": "#end"},
         "east":  { "uv": [ 5, 5, 11, 11 ], "texture": "#end"}
