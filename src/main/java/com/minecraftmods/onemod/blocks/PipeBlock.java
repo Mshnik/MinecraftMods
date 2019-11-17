@@ -172,6 +172,25 @@ final class PipeBlock extends ContainerBlock {
     return attachedDirections;
   }
 
+  private BlockState syncFlowDirection(IWorld world, BlockState current, BlockPos blockPos) {
+    DirectionOrNone start = current.get(START);
+    DirectionOrNone stop = current.get(STOP);
+
+    if (start.isNone() && stop.isNone()) {
+      return current;
+    }
+
+    BlockState neighborBlockStartDirection = world.getBlockState(start.moveBlockPos(blockPos));
+    BlockState neighborBlockStopDirection = world.getBlockState(stop.moveBlockPos(blockPos));
+
+    if (neighborBlockStartDirection.get(START).getOpposite().equals(start)
+        && neighborBlockStopDirection.get(STOP).getOpposite().equals(stop)) {
+      return current.with(START, stop).with(STOP, start);
+    } else {
+      return current;
+    }
+  }
+
   private BlockState updateAttachState(IWorld world, BlockState current, BlockPos blockPos) {
     DirectionOrNone currentStart = current.get(START);
     DirectionOrNone currentStop = current.get(STOP);
@@ -200,7 +219,8 @@ final class PipeBlock extends ContainerBlock {
       connections.remove(newStop);
     }
 
-    return current.with(START, newStart).with(STOP, newStop);
+    BlockState updated = current.with(START, newStart).with(STOP, newStop);
+    return syncFlowDirection(world, updated, blockPos);
   }
 
   private Optional<BlockState> getBlockInDirection(

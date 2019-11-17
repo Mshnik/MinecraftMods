@@ -1,0 +1,24 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "particle": "onemod:block/pipeblock_side",
+    "side_rotated": "onemod:block/pipeblock_side_rotated_debug",
+    "side_rotated_reverse": "onemod:block/pipeblock_side_rotated_debug_reverse",
+    "side": "onemod:block/pipeblock_side_debug",
+    "side_reverse": "onemod:block/pipeblock_side_debug_reverse",
+    "end": "onemod:block/pipeblock_end_debug"
+  },
+  "elements": [
+    {
+      "from": [ 5, 5, 0 ],
+      "to": [ 11, 11, 11 ],
+      "faces": {
+        "down":  { "uv": [ 4, 0, 12, 16 ], "texture": "#side_rotated" },
+        "up":    { "uv": [ 4, 0, 12, 16 ], "texture": "#side_rotated_reverse" },
+        "south": { "uv": [ 0, 0, 16, 16 ], "texture": "#end"},
+        "west":  { "uv": [ 0, 4, 16, 12 ], "texture": "#side_reverse"},
+        "east":  { "uv": [ 0, 4, 16, 12 ], "texture": "#side"}
+      }
+    }
+  ]
+}

@@ -251,26 +251,26 @@
       "x": 90
     },
     "start=none,stop=north,debug=true": {
-      "model": "onemod:block/pipeblock_end_debug"
+      "model": "onemod:block/pipeblock_end_reverse_debug"
     },
     "start=none,stop=south,debug=true": {
-      "model": "onemod:block/pipeblock_end_debug",
+      "model": "onemod:block/pipeblock_end_reverse_debug",
       "y": 180
     },
     "start=none,stop=west,debug=true": {
-      "model": "onemod:block/pipeblock_end_debug",
+      "model": "onemod:block/pipeblock_end_reverse_debug",
       "y": 270
     },
     "start=none,stop=east,debug=true": {
-      "model": "onemod:block/pipeblock_end_debug",
+      "model": "onemod:block/pipeblock_end_reverse_debug",
       "y": 90
     },
     "start=none,stop=up,debug=true": {
-      "model": "onemod:block/pipeblock_end_debug",
+      "model": "onemod:block/pipeblock_end_reverse_debug",
       "x": -90
     },
     "start=none,stop=down,debug=true": {
-      "model": "onemod:block/pipeblock_end_debug",
+      "model": "onemod:block/pipeblock_end_reverse_debug",
       "x": 90
     },
     "start=north,stop=south,debug=true": {
